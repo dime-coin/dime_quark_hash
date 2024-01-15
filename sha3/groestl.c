@@ -2811,63 +2811,73 @@ groestl_small_core(sph_groestl_small_context *sc, const void *data, size_t len)
 
 static void
 groestl_small_close(sph_groestl_small_context *sc,
-	unsigned ub, unsigned n, void *dst, size_t out_len)
+    unsigned ub, unsigned n, void *dst, size_t out_len)
 {
-	unsigned char *__attribute__((unused)) buf;
-	unsigned char pad[72];
-	size_t u, ptr, pad_len;
-#if SPH_64
-	sph_u64 count;
-#else
-	sph_u32 count_high, count_low;
-#endif
-	unsigned z;
-	DECL_STATE_SMALL
+    #ifdef _MSC_VER
+    #pragma warning(push)
+    #pragma warning(disable : 4101) // Disable warning for unused variable
+    #endif
 
-	buf = sc->buf;
-	ptr = sc->ptr;
-	z = 0x80 >> n;
-	pad[0] = ((ub & -z) | z) & 0xFF;
-	if (ptr < 56) {
-		pad_len = 64 - ptr;
-#if SPH_64
-		count = SPH_T64(sc->count + 1);
-#else
-		count_low = SPH_T32(sc->count_low + 1);
-		count_high = SPH_T32(sc->count_high);
-		if (count_low == 0)
-			count_high = SPH_T32(count_high + 1);
-#endif
-	} else {
-		pad_len = 128 - ptr;
-#if SPH_64
-		count = SPH_T64(sc->count + 2);
-#else
-		count_low = SPH_T32(sc->count_low + 2);
-		count_high = SPH_T32(sc->count_high);
-		if (count_low <= 1)
-			count_high = SPH_T32(count_high + 1);
-#endif
-	}
-	memset(pad + 1, 0, pad_len - 9);
-#if SPH_64
-	sph_enc64be(pad + pad_len - 8, count);
-#else
-	sph_enc64be(pad + pad_len - 8, count_high);
-	sph_enc64be(pad + pad_len - 4, count_low);
-#endif
-	groestl_small_core(sc, pad, pad_len);
-	READ_STATE_SMALL(sc);
-	FINAL_SMALL;
-#if SPH_GROESTL_64
-	for (u = 0; u < 4; u ++)
-		enc64e(pad + (u << 3), H[u + 4]);
-#else
-	for (u = 0; u < 8; u ++)
-		enc32e(pad + (u << 2), H[u + 8]);
-#endif
-	memcpy(dst, pad + 32 - out_len, out_len);
-	groestl_small_init(sc, (unsigned)out_len << 3);
+    unsigned char *buf;
+
+    #ifdef _MSC_VER
+    #pragma warning(pop)
+    #endif
+
+    unsigned char pad[72];
+    size_t u, ptr, pad_len;
+    #if SPH_64
+    sph_u64 count;
+    #else
+    sph_u32 count_high, count_low;
+    #endif
+    unsigned z;
+    DECL_STATE_SMALL
+
+    buf = sc->buf;
+    ptr = sc->ptr;
+    z = 0x80 >> n;
+    pad[0] = ((ub & -z) | z) & 0xFF;
+    if (ptr < 56) {
+        pad_len = 64 - ptr;
+        #if SPH_64
+        count = SPH_T64(sc->count + 1);
+        #else
+        count_low = SPH_T32(sc->count_low + 1);
+        count_high = SPH_T32(sc->count_high);
+        if (count_low == 0)
+            count_high = SPH_T32(count_high + 1);
+        #endif
+    } else {
+        pad_len = 128 - ptr;
+        #if SPH_64
+        count = SPH_T64(sc->count + 2);
+        #else
+        count_low = SPH_T32(sc->count_low + 2);
+        count_high = SPH_T32(sc->count_high);
+        if (count_low <= 1)
+            count_high = SPH_T32(count_high + 1);
+        #endif
+    }
+    memset(pad + 1, 0, pad_len - 9);
+    #if SPH_64
+    sph_enc64be(pad + pad_len - 8, count);
+    #else
+    sph_enc64be(pad + pad_len - 8, count_high);
+    sph_enc64be(pad + pad_len - 4, count_low);
+    #endif
+    groestl_small_core(sc, pad, pad_len);
+    READ_STATE_SMALL(sc);
+    FINAL_SMALL;
+    #if SPH_GROESTL_64
+    for (u = 0; u < 4; u ++)
+        enc64e(pad + (u << 3), H[u + 4]);
+    #else
+    for (u = 0; u < 8; u ++)
+        enc32e(pad + (u << 2), H[u + 8]);
+    #endif
+    memcpy(dst, pad + 32 - out_len, out_len);
+    groestl_small_init(sc, (unsigned)out_len << 3);
 }
 
 static void
@@ -2947,65 +2957,74 @@ groestl_big_core(sph_groestl_big_context *sc, const void *data, size_t len)
 
 static void
 groestl_big_close(sph_groestl_big_context *sc,
-	unsigned ub, unsigned n, void *dst, size_t out_len)
+    unsigned ub, unsigned n, void *dst, size_t out_len)
 {
-	unsigned char *__attribute__((unused)) buf;
-	unsigned char pad[136];
-	size_t ptr, pad_len, u;
-#if SPH_64
-	sph_u64 count;
-#else
-	sph_u32 count_high, count_low;
-#endif
-	unsigned z;
-	DECL_STATE_BIG
+    #ifdef _MSC_VER
+    #pragma warning(push)
+    #pragma warning(disable : 4101) // Disable warning for unused variable
+    #endif
 
-	buf = sc->buf;
-	ptr = sc->ptr;
-	z = 0x80 >> n;
-	pad[0] = ((ub & -z) | z) & 0xFF;
-	if (ptr < 120) {
-		pad_len = 128 - ptr;
-#if SPH_64
-		count = SPH_T64(sc->count + 1);
-#else
-		count_low = SPH_T32(sc->count_low + 1);
-		count_high = SPH_T32(sc->count_high);
-		if (count_low == 0)
-			count_high = SPH_T32(count_high + 1);
-#endif
-	} else {
-		pad_len = 256 - ptr;
-#if SPH_64
-		count = SPH_T64(sc->count + 2);
-#else
-		count_low = SPH_T32(sc->count_low + 2);
-		count_high = SPH_T32(sc->count_high);
-		if (count_low <= 1)
-			count_high = SPH_T32(count_high + 1);
-#endif
-	}
-	memset(pad + 1, 0, pad_len - 9);
-#if SPH_64
-	sph_enc64be(pad + pad_len - 8, count);
-#else
-	sph_enc64be(pad + pad_len - 8, count_high);
-	sph_enc64be(pad + pad_len - 4, count_low);
-#endif
-	groestl_big_core(sc, pad, pad_len);
-	READ_STATE_BIG(sc);
-	FINAL_BIG;
-#if SPH_GROESTL_64
-	for (u = 0; u < 8; u ++)
-		enc64e(pad + (u << 3), H[u + 8]);
-#else
-	for (u = 0; u < 16; u ++)
-		enc32e(pad + (u << 2), H[u + 16]);
-#endif
-	memcpy(dst, pad + 64 - out_len, out_len);
-	groestl_big_init(sc, (unsigned)out_len << 3);
+    unsigned char *buf;
+
+    #ifdef _MSC_VER
+    #pragma warning(pop)
+    #endif
+
+    unsigned char pad[136];
+    size_t ptr, pad_len, u;
+    #if SPH_64
+    sph_u64 count;
+    #else
+    sph_u32 count_high, count_low;
+    #endif
+    unsigned z;
+    DECL_STATE_BIG
+
+    buf = sc->buf;
+    ptr = sc->ptr;
+    z = 0x80 >> n;
+    pad[0] = ((ub & -z) | z) & 0xFF;
+    if (ptr < 120) {
+        pad_len = 128 - ptr;
+        #if SPH_64
+        count = SPH_T64(sc->count + 1);
+        #else
+        count_low = SPH_T32(sc->count_low + 1);
+        count_high = SPH_T32(sc->count_high);
+        if (count_low == 0)
+            count_high = SPH_T32(count_high + 1);
+        #endif
+    } else {
+        pad_len = 256 - ptr;
+        #if SPH_64
+        count = SPH_T64(sc->count + 2);
+        #else
+        count_low = SPH_T32(sc->count_low + 2);
+        count_high = SPH_T32(sc->count_high);
+        if (count_low <= 1)
+            count_high = SPH_T32(count_high + 1);
+        #endif
+    }
+    memset(pad + 1, 0, pad_len - 9);
+    #if SPH_64
+    sph_enc64be(pad + pad_len - 8, count);
+    #else
+    sph_enc64be(pad + pad_len - 8, count_high);
+    sph_enc64be(pad + pad_len - 4, count_low);
+    #endif
+    groestl_big_core(sc, pad, pad_len);
+    READ_STATE_BIG(sc);
+    FINAL_BIG;
+    #if SPH_GROESTL_64
+    for (u = 0; u < 8; u ++)
+        enc64e(pad + (u << 3), H[u + 8]);
+    #else
+    for (u = 0; u < 16; u ++)
+        enc32e(pad + (u << 2), H[u + 16]);
+    #endif
+    memcpy(dst, pad + 64 - out_len, out_len);
+    groestl_big_init(sc, (unsigned)out_len << 3);
 }
-
 /* see sph_groestl.h */
 void
 sph_groestl224_init(void *cc)
