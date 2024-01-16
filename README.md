@@ -1,7 +1,7 @@
 quark_hash (v1.2)
 ===========================
 
-Python module for PIVX quark hashing.
+Python module for DIME quark hashing.
 
 
 Install
@@ -50,3 +50,4 @@ Credits
 * Module maintained by @vertoe https://github.com/vertoe/darkcoin_hash
 * Module maintained by @jakehaas https://github.com/jakehaas/x11_hash
 * Module maintained by @gpdionisio https://github.com/gpdionisio/pivx_quark_hash
+* Module maintained by @Dhop14 https://github.com/Dhop14
